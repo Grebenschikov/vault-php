@@ -36,11 +36,7 @@ jobs:
       - name: Run tests
         run: XDEBUG_MODE=coverage php vendor/bin/codecept run --coverage-xml
 
-      - name: Debug
+      - name: Check coverage
         env:
           CODACY_TOKEN: ${{ secrets.CODACY_TOKEN }}
-          NOT_EXISTS: ${{ secrets.NOT_EXISTS }}
-        run: env
-      # 
-      # - name: Check coverage
-      #   run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l PHP -r tests/_output/coverage.xml
+        run: '[[ -n "$CODACY_TOKEN" ]] && bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l PHP -r tests/_output/coverage.xml'
