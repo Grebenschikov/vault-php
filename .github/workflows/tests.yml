@@ -25,9 +25,6 @@ jobs:
           php-version: ${{ matrix.php }}
           tools: composer:v2
           coverage: xdebug
-     
-      - name: Install dependencies
-        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Install dependencies
         uses: nick-invision/retry@v1
@@ -40,6 +37,9 @@ jobs:
         run: XDEBUG_MODE=coverage php vendor/bin/codecept run --coverage-xml
 
       - name: Debug
+        env:
+          CODACY_TOKEN: ${{ secrets.CODACY_TOKEN }}
+          NOT_EXISTS: ${{ secrets.NOT_EXISTS }}
         run: env
       # 
       # - name: Check coverage
