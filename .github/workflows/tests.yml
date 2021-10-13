@@ -1,16 +1,43 @@
-name: Tests
+name: tests
 
 on:
   push:
   pull_request:
 
 jobs:
-  build:
+  tests:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        php:
+          - '7.2'
+          - '7.3'
+          - '7.4'
+          - '8.0'
     steps:
-      - uses: actions/checkout@v2
-      - uses: php-actions/composer@v6
+      - name: Checkout code
+        uses: actions/checkout@v2
+     
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          dev: yes
-      - uses: joelwmale/codeception-action@master
+          php-version: ${{ matrix.php }}
+          tools: composer:v2
+          coverage: none
+     
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Install dependencies
+        uses: nick-invision/retry@v1
+        with:
+          timeout_seconds: 60
+          max_attempts: 5
+          command: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run tests
+        run: XDEBUG_MODE=coverage php vendor/bin/codecept run --coverage-xml
+
+      - name: Check coverage
+        run: bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l PHP -r tests/_output/coverage.xml
